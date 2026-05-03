@@ -15,18 +15,20 @@ Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:1')->name('admin.dashboard');
+    Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:Admin')->name('admin.dashboard');
 
-    Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:4')->name('labmanager.dashboard');
-    Route::get('/researcher/dashboard', fn() => view('dashboards.researcher'))->middleware('role:4')->name('researcher.dashboard');
+    Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:Lab_Manager')->name('labmanager.dashboard');
+    Route::get('/researcher/dashboard', fn() => view('dashboards.researcher'))->middleware('role:Researcher')->name('researcher.dashboard');
 
-    Route::get('/pi/dashboard', fn() => view('dashboards.pi'))->middleware('role:2')->name('pi.dashboard');
+    Route::get('/pi/dashboard', fn() => view('dashboards.pi'))->middleware('role:PI')->name('pi.dashboard');
 
-    Route::get('/auditor/dashboard', fn() => view('dashboards.auditor'))->middleware('role:null')->name('auditor.dashboard');
+    Route::get('/auditor/dashboard', fn() => view('dashboards.auditor'))->middleware('role:Auditor')->name('auditor.dashboard');
 });
 
-Route::middleware(['auth', 'role:1'])->group(function () {
+Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::post('/adminAddUser', [AdminController::class, 'store'])->name('admin.users.store');
     Route::delete('/adminDeleteUser', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     Route::post('/logout', [Logout::class, '__invoke'])->name('logout');
 });
+
+Route::middleware(['auth', 'role:PI']);

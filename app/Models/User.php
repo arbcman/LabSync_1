@@ -49,9 +49,7 @@ class User extends Authenticatable
         'expiry_date'  => 'date',
     ];
 
-    // ---------------------------------------------------------------------------
-    // Role Helper Methods
-    // ---------------------------------------------------------------------------
+   
     public function isResearcher(): bool
     {
         return $this->role === self::ROLE_RESEARCHER;
@@ -82,6 +80,13 @@ class User extends Authenticatable
         return $this->role === $role;
     }
 
+
+// Foreign ID [ user->role_id ===> roles table ]
+    public function role(){
+        return $this->belongsTo(Role::class);
+    }
+
+    
     public function initials(): string
     {
         return Str::of($this->name)
