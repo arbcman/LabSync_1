@@ -19,7 +19,7 @@ class Equipment extends Model
         'required_clearance',
     ];
 
-    
+
     protected $casts = [
         'hourly_rate' => 'float',
         'required_clearance' => 'integer',

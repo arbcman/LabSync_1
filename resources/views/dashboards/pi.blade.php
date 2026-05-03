@@ -7,37 +7,30 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.users.store') }}">
+    <form method="POST" action="{{ route('pi.researcher.store') }}">
         @csrf
-        <input type="radio" name="user_role" value="PI" onchange="toggleFields('PI')" required> PI
-        <input type="radio" name="user_role" value="Lab_Manager" onchange="toggleFields('LabM')" required> Lab
-        Manager
-        <br><br>
 
-        <label>User Name</label>
+        <br>
+
+        <label>Researcher Name</label>
         <input type="text" name="user_name" placeholder="Name" required><br>
 
-        <label>User Email</label>
+        <label>Researcher Email</label>
         <input type="email" name="user_email" placeholder="name@email.com" required><br>
+
+        <label>Researcher Password</label>
+        <input type="password" name="user_pass" placeholder="123456"> <br>
 
         <label>Expiry Date</label>
         <input type="date" name="expiry_date" placeholder="yyyy-mm-dd" required><br>
 
-        <label>User Password</label>
-        <input type="password" name="user_pass" placeholder="123456" required> <br>
+        <label>Academic Level</label>
+        <input type="text" name="academic_level" placeholder="PhD" required><br>
 
-        <!-- PI Fields -->
-        <div id="pi_fields" style="display:none;">
-            <label>Budget Limit</label>
-            <input type="number" id="budget_input" name="budget_limit" placeholder="Budget Limit">
-        </div>
-
-        <!-- LabManager Fields -->
-        <div id="labm_fields" style="display:none;">
-            <label>Lab Locations</label>
-            <input type="text" id="lab_input" name="lab_locations" placeholder="Lab Locations">
-        </div>
-
-        <button type="submit" style="margin-top: 10px;">Add User</button>
+        <label>Clearance Level</label>
+        <input type="number" name="clearance_level" min="0" max="3"><br>
+        <button type="submit" style="margin-top: 10px;">Add/Update Researcher</button>
     </form>
 </section>
+
+<x-logout-btn />

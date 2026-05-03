@@ -539,220 +539,222 @@
         <a href="{{ route('login') }}" class="btn btn-primary">Login</a>
     @endguest
     @auth
-    <H3> Welcome {{ auth()->user()->name }}</h1>
-    @endauth
-    <div class="shell">
+        <H3> Welcome {{ auth()->user()->name }}</h1>
+            <x-logout-btn />
+        @endauth
+        <div class="shell">
 
-        {{-- ── Header ── --}}
-        <header>
-            <div class="header-left">
-                <p class="eyebrow">// Lab Management System</p>
-                <h1>Equipment <span>Registry</span></h1>
-                <p class="header-meta">Last updated &mdash; {{ now()->format('d M Y, H:i') }}</p>
-            </div>
-
-            <div class="controls">
-                {{-- Search --}}
-                <div class="search-wrap">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.35-4.35" />
-                    </svg>
-                    <input id="search" class="search-input" type="text" placeholder="Search equipment…"
-                        autocomplete="off" />
+            {{-- ── Header ── --}}
+            <header>
+                <div class="header-left">
+                    <p class="eyebrow">// Lab Management System</p>
+                    <h1>Equipment <span>Registry</span></h1>
+                    <p class="header-meta">Last updated &mdash; {{ now()->format('d M Y, H:i') }}</p>
                 </div>
 
-                {{-- Status filter --}}
-                <select id="status-filter" class="filter-select">
-                    <option value="">All statuses</option>
-                    <option value="Available">Available</option>
-                    <option value="In Use">In Use</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Unavailable">Unavailable</option>
-                </select>
-
-                {{-- Add button (show only to admins/techs) --}}
-                @can('create', App\Models\Equipment::class)
-                    <a href="{{ route('equipment.create') }}" class="btn btn-primary"
-                        style="flex:none; padding:.6rem 1.2rem;">
-                        + Add Equipment
-                    </a>
-                @endcan
-            </div>
-        </header>
-
-        {{-- ── Stats bar ── --}}
-        @php
-
-            $total = $equipment->total();
-            $available = $equipment->getCollection()->where('status', 'Available')->count();
-            $inUse = $equipment->getCollection()->where('status', 'In Use')->count();
-            $maintenance = $equipment->getCollection()->where('status', 'Maintenance')->count();
-        @endphp
-
-        <div class="stats-bar">
-            <div class="stat">
-                <span class="stat-label">Total</span>
-                <span class="stat-value">{{ $total }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">Available</span>
-                <span class="stat-value" style="color:var(--green)">{{ $available }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">In Use</span>
-                <span class="stat-value" style="color:var(--blue)">{{ $inUse }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-label">Maintenance</span>
-                <span class="stat-value" style="color:var(--amber)">{{ $maintenance }}</span>
-            </div>
-        </div>
-
-        {{-- ── Equipment Grid ── --}}
-        <div class="grid" id="equipment-grid">
-
-            @forelse ($equipment as $item)
-
-                @php
-                    $badgeClass = match ($item->status) {
-                        'Available' => 'badge-available',
-                        'In Use' => 'badge-in-use',
-                        'Maintenance' => 'badge-maintenance',
-                        default => 'badge-unavailable',
-                    };
-
-                    $canBook =
-                        $item->status === 'Available' && auth()->user()?->clearance_level >= $item->required_clearance;
-                @endphp
-
-                <div class="card" data-name="{{ strtolower($item->name) }}" data-status="{{ $item->status }}">
-                    {{-- Top row --}}
-                    <div class="card-top">
-                        <span class="card-id">#{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</span>
-                        <span class="badge {{ $badgeClass }}">{{ $item->status }}</span>
+                <div class="controls">
+                    {{-- Search --}}
+                    <div class="search-wrap">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input id="search" class="search-input" type="text" placeholder="Search equipment…"
+                            autocomplete="off" />
                     </div>
 
-                    {{-- Name --}}
-                    <div class="card-name">{{ $item->name }}</div>
+                    {{-- Status filter --}}
+                    <select id="status-filter" class="filter-select">
+                        <option value="">All statuses</option>
+                        <option value="Available">Available</option>
+                        <option value="In Use">In Use</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Unavailable">Unavailable</option>
+                    </select>
 
-                    <div class="card-divider"></div>
+                    {{-- Add button (show only to admins/techs) --}}
+                    @can('create', App\Models\Equipment::class)
+                        <a href="{{ route('equipment.create') }}" class="btn btn-primary"
+                            style="flex:none; padding:.6rem 1.2rem;">
+                            + Add Equipment
+                        </a>
+                    @endcan
+                </div>
+            </header>
 
-                    {{-- Meta --}}
-                    <div class="meta-list">
-                        <div class="meta-row">
-                            <span class="meta-key">Hourly Rate</span>
-                            <span class="meta-val accent">${{ number_format($item->hourly_rate, 2) }}/hr</span>
+            {{-- ── Stats bar ── --}}
+            @php
+
+                $total = $equipment->total();
+                $available = $equipment->getCollection()->where('status', 'Available')->count();
+                $inUse = $equipment->getCollection()->where('status', 'In Use')->count();
+                $maintenance = $equipment->getCollection()->where('status', 'Maintenance')->count();
+            @endphp
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-label">Total</span>
+                    <span class="stat-value">{{ $total }}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Available</span>
+                    <span class="stat-value" style="color:var(--green)">{{ $available }}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">In Use</span>
+                    <span class="stat-value" style="color:var(--blue)">{{ $inUse }}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Maintenance</span>
+                    <span class="stat-value" style="color:var(--amber)">{{ $maintenance }}</span>
+                </div>
+            </div>
+
+            {{-- ── Equipment Grid ── --}}
+            <div class="grid" id="equipment-grid">
+
+                @forelse ($equipment as $item)
+
+                    @php
+                        $badgeClass = match ($item->status) {
+                            'Available' => 'badge-available',
+                            'In Use' => 'badge-in-use',
+                            'Maintenance' => 'badge-maintenance',
+                            default => 'badge-unavailable',
+                        };
+
+                        $canBook =
+                            $item->status === 'Available' &&
+                            auth()->user()?->clearance_level >= $item->required_clearance;
+                    @endphp
+
+                    <div class="card" data-name="{{ strtolower($item->name) }}" data-status="{{ $item->status }}">
+                        {{-- Top row --}}
+                        <div class="card-top">
+                            <span class="card-id">#{{ str_pad($item->id, 4, '0', STR_PAD_LEFT) }}</span>
+                            <span class="badge {{ $badgeClass }}">{{ $item->status }}</span>
                         </div>
-                        <div class="meta-row">
-                            <span class="meta-key">Clearance Req.</span>
-                            <div class="pips">
-                                @for ($i = 1; $i <= 3; $i++)
-                                    <div class="pip {{ $i <= $item->required_clearance ? 'on' : '' }}"></div>
-                                @endfor
+
+                        {{-- Name --}}
+                        <div class="card-name">{{ $item->name }}</div>
+
+                        <div class="card-divider"></div>
+
+                        {{-- Meta --}}
+                        <div class="meta-list">
+                            <div class="meta-row">
+                                <span class="meta-key">Hourly Rate</span>
+                                <span class="meta-val accent">${{ number_format($item->hourly_rate, 2) }}/hr</span>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-key">Clearance Req.</span>
+                                <div class="pips">
+                                    @for ($i = 1; $i <= 3; $i++)
+                                        <div class="pip {{ $i <= $item->required_clearance ? 'on' : '' }}"></div>
+                                    @endfor
+                                </div>
+                            </div>
+                            <div class="meta-row">
+                                <span class="meta-key">Added</span>
+                                <span class="meta-val">{{ $item->created_at->format('d M Y') }}</span>
                             </div>
                         </div>
-                        <div class="meta-row">
-                            <span class="meta-key">Added</span>
-                            <span class="meta-val">{{ $item->created_at->format('d M Y') }}</span>
+
+                        <div class="card-divider"></div>
+
+                        {{-- Footer actions --}}
+                        <div class="card-footer">
+                            <a href="{{ route('researcher.dashboard', $item->id) }}" class="btn btn-ghost">
+                                View Details
+                            </a>
+
+                            @auth
+                                @if ($canBook)
+                                    <a href="{{ route('researcher.dashboard', $item->id) }}" class="btn btn-primary">
+                                        Book Session
+                                    </a>
+                                @else
+                                    <span class="btn btn-primary disabled"
+                                        title="{{ $item->status !== 'Available' ? 'Equipment unavailable' : 'Insufficient clearance' }}">
+                                        {{ $item->status !== 'Available' ? 'Unavailable' : 'No Clearance' }}
+                                    </span>
+                                @endif
+                            @endauth
                         </div>
                     </div>
 
-                    <div class="card-divider"></div>
+                @empty
 
-                    {{-- Footer actions --}}
-                    <div class="card-footer">
-                        <a href="{{ route('researcher.dashboard', $item->id) }}" class="btn btn-ghost">
-                            View Details
-                        </a>
-
-                        @auth
-                            @if ($canBook)
-                                <a href="{{ route('researcher.dashboard', $item->id) }}" class="btn btn-primary">
-                                    Book Session
-                                </a>
-                            @else
-                                <span class="btn btn-primary disabled"
-                                    title="{{ $item->status !== 'Available' ? 'Equipment unavailable' : 'Insufficient clearance' }}">
-                                    {{ $item->status !== 'Available' ? 'Unavailable' : 'No Clearance' }}
-                                </span>
-                            @endif
-                        @endauth
+                    <div class="empty">
+                        <div class="empty-icon">🔬</div>
+                        <div class="empty-title">No equipment found</div>
+                        <p class="empty-sub">No equipment has been registered yet.</p>
                     </div>
-                </div>
 
-            @empty
+                @endforelse
 
-                <div class="empty">
-                    <div class="empty-icon">🔬</div>
-                    <div class="empty-title">No equipment found</div>
-                    <p class="empty-sub">No equipment has been registered yet.</p>
-                </div>
+                <div id="no-results">No equipment matches your search.</div>
 
-            @endforelse
-
-            <div id="no-results">No equipment matches your search.</div>
-
-        </div>
-
-        {{-- ── Pagination ── --}}
-        @if ($equipment->hasPages())
-            <div class="pagination">
-                {{-- Previous --}}
-                @if ($equipment->onFirstPage())
-                    <span class="disabled">&larr;</span>
-                @else
-                    <a href="{{ $equipment->previousPageUrl() }}">&larr;</a>
-                @endif
-
-                {{-- Page numbers --}}
-                @foreach ($equipment->getUrlRange(1, $equipment->lastPage()) as $page => $url)
-                    @if ($page == $equipment->currentPage())
-                        <span class="active">{{ $page }}</span>
-                    @else
-                        <a href="{{ $url }}">{{ $page }}</a>
-                    @endif
-                @endforeach
-
-                {{-- Next --}}
-                @if ($equipment->hasMorePages())
-                    <a href="{{ $equipment->nextPageUrl() }}">&rarr;</a>
-                @else
-                    <span class="disabled">&rarr;</span>
-                @endif
             </div>
-        @endif
 
-    </div>{{-- /shell --}}
+            {{-- ── Pagination ── --}}
+            @if ($equipment->hasPages())
+                <div class="pagination">
+                    {{-- Previous --}}
+                    @if ($equipment->onFirstPage())
+                        <span class="disabled">&larr;</span>
+                    @else
+                        <a href="{{ $equipment->previousPageUrl() }}">&larr;</a>
+                    @endif
 
-    {{-- ── Client-side search & filter (no page reload) ── --}}
-    <script>
-        const searchInput = document.getElementById('search');
-        const statusFilter = document.getElementById('status-filter');
-        const cards = document.querySelectorAll('.card[data-name]');
-        const noResults = document.getElementById('no-results');
+                    {{-- Page numbers --}}
+                    @foreach ($equipment->getUrlRange(1, $equipment->lastPage()) as $page => $url)
+                        @if ($page == $equipment->currentPage())
+                            <span class="active">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
 
-        function filterCards() {
-            const query = searchInput.value.toLowerCase().trim();
-            const status = statusFilter.value.toLowerCase();
-            let visible = 0;
+                    {{-- Next --}}
+                    @if ($equipment->hasMorePages())
+                        <a href="{{ $equipment->nextPageUrl() }}">&rarr;</a>
+                    @else
+                        <span class="disabled">&rarr;</span>
+                    @endif
+                </div>
+            @endif
 
-            cards.forEach(card => {
-                const nameMatch = card.dataset.name.includes(query);
-                const statusMatch = !status || card.dataset.status.toLowerCase() === status;
-                const show = nameMatch && statusMatch;
+        </div>{{-- /shell --}}
 
-                card.style.display = show ? '' : 'none';
-                if (show) visible++;
-            });
+        {{-- ── Client-side search & filter (no page reload) ── --}}
+        <script>
+            const searchInput = document.getElementById('search');
+            const statusFilter = document.getElementById('status-filter');
+            const cards = document.querySelectorAll('.card[data-name]');
+            const noResults = document.getElementById('no-results');
 
-            noResults.style.display = visible === 0 ? 'block' : 'none';
-        }
+            function filterCards() {
+                const query = searchInput.value.toLowerCase().trim();
+                const status = statusFilter.value.toLowerCase();
+                let visible = 0;
 
-        searchInput.addEventListener('input', filterCards);
-        statusFilter.addEventListener('change', filterCards);
-    </script>
+                cards.forEach(card => {
+                    const nameMatch = card.dataset.name.includes(query);
+                    const statusMatch = !status || card.dataset.status.toLowerCase() === status;
+                    const show = nameMatch && statusMatch;
+
+                    card.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+
+                noResults.style.display = visible === 0 ? 'block' : 'none';
+            }
+
+            searchInput.addEventListener('input', filterCards);
+            statusFilter.addEventListener('change', filterCards);
+        </script>
 
 </body>
 

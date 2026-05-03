@@ -16,11 +16,12 @@ class User extends Authenticatable
     // ---------------------------------------------------------------------------
     // Role Constants
     // ---------------------------------------------------------------------------
+    const ROLE_SYSTEM_ADMIN  = 1;
+    const ROLE_PI            = 2;
     const ROLE_RESEARCHER    = 3;
     const ROLE_LAB_MANAGER   = 4;
     const ROLE_AUDITOR       = 5;
-    const ROLE_SYSTEM_ADMIN  = 1;
-    const ROLE_PI            = 2;
+
 
     // ---------------------------------------------------------------------------
     // Fillable / Hidden
@@ -31,12 +32,15 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'pis_id',
+        'academicLevel',
         'budget_limit',
         'managed_Lab_Locations',
         'user_role_tier',
         'security_clearance_level',
         'is_active',
         'expiry_date',
+        'clearance_level',
     ];
 
     protected $hidden = [
@@ -49,7 +53,7 @@ class User extends Authenticatable
         'expiry_date'  => 'date',
     ];
 
-   
+
     public function isResearcher(): bool
     {
         return $this->role === self::ROLE_RESEARCHER;
@@ -81,12 +85,18 @@ class User extends Authenticatable
     }
 
 
-// Foreign ID [ user->role_id ===> roles table ]
-    public function role(){
+    // Foreign ID [ user->role_id ===> roles table ]
+    public function role()
+    {
         return $this->belongsTo(Role::class);
     }
 
-    
+    // Return iD 
+    public function getID()
+    {
+        return $this->id;
+    }
+
     public function initials(): string
     {
         return Str::of($this->name)

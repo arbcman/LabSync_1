@@ -14,20 +14,25 @@ class AdminService
     public function __construct() {}
 
 
-    public function storeUser(array $data)
+    public function storeOrUpdateUser(array $data)
     {
         $role = Role::where('name', $data['user_role'])->firstOrFail();
 
-        return User::create([
-            'name'     => $data['user_name'],
-            'email'    => $data['user_email'],
-            'role_id'  => $role->id,
+        $values = [
+            'name'       => $data['user_name'],
+            'role_id'    => $role->id,
             'password' => Hash::make($data['user_pass']),
             'budget_limit' => $data['budget_limit'] ?? null,
             'managed_Lab_Locations' => $data['lab_locations'] ?? null,
             'is_active'     => true,
             'expiry_date'   => $data['expiry_date'],
-        ]);
+        ];
+
+        if (!empty($data['user_pass'])) {
+            $values['password'] = Hash::make($data['user_pass']);
+        }
+
+        return  User::updateOrCreate(['email' => $data['user_email']], $values);
     }
 
     public function deleteUser($id)

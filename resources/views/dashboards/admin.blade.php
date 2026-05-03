@@ -85,9 +85,4 @@
 </script>
 
 
-<form method="POST" action="{{ route('logout') }}">
-    @csrf
-    <button type="submit" style="color: red">
-        Log Out !
-    </button>
-</form>
+<x-logout-btn />
