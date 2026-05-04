@@ -1,27 +1,3 @@
-{{--
-    resources/views/auditor/dashboard.blade.php
-
-    ═══════════════════════════════════════════════════════════
-    Controller  — only touches: equipment, audit_trails
-    ═══════════════════════════════════════════════════════════
-
-
-
-    ═══════════════════════════════════════════════════════════
-    Route
-    ═══════════════════════════════════════════════════════════
-
-       // add role middleware when ready
-
-    ═══════════════════════════════════════════════════════════
-    Why audit_trails belongs here:
-      Audit logs record every financial action in the system —
-      who added/changed/deleted equipment rates, sessions, costs.
-      An auditor's job is to verify those actions are legitimate.
-      This is the ONE extra table that is genuinely finance-adjacent.
-    ═══════════════════════════════════════════════════════════
---}}
-
 <!DOCTYPE html>
 <html lang="en">
 
