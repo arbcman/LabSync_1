@@ -1,18 +1,3 @@
-{{--
-    resources/views/equipment/show.blade.php
-
-    Controller:
-    ───────────────────────────────────────
-    public function show($id) {
-        $equipment = Equipment::findOrFail($id);
-        return view('equipment.show', compact('equipment'));
-    }
-
-    Route:
-    ───────────────────────────────────────
-    Route::get('/equipment/{id}', [EquipmentController::class, 'show'])->name('equipment.show');
---}}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,9 +22,10 @@
         {{-- Hero --}}
         @php
             $badgeClass = match ($equipment->status) {
-                'Available' => 'badge-available',
-                'In Use' => 'badge-in-use',
+                'Idle' => 'badge-idle',
+                'Active' => 'badge-active',
                 'Maintenance' => 'badge-maintenance',
+                'Locked' => 'badge-locked',
                 default => 'badge-unavailable',
             };
         @endphp
@@ -86,20 +72,7 @@
             </div>
 
         </div>
-
-        {{-- Admin actions (only shown if user can edit/delete) --}}
-        @can('update', $equipment)
-            <div class="actions">
-                <a href="{{ route('equipment.edit', $equipment->id) }}" class="btn btn-ghost">Edit Equipment</a>
-
-                <form method="POST" action="{{ route('equipment.destroy', $equipment->id) }}"
-                    onsubmit="return confirm('Delete this equipment permanently?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        @endcan
-
+        
     </div>
 
 </body>

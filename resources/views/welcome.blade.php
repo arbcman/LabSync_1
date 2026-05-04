@@ -300,12 +300,12 @@
             display: block;
         }
 
-        .badge-available {
+        .badge-idle {
             color: var(--green);
             background: rgba(61, 220, 132, .1);
         }
 
-        .badge-in-use {
+        .badge-active {
             color: var(--blue);
             background: rgba(77, 158, 255, .1);
         }
@@ -315,7 +315,7 @@
             background: rgba(245, 166, 35, .1);
         }
 
-        .badge-unavailable {
+        .badge-locked {
             color: var(--red);
             background: rgba(255, 77, 90, .1);
         }
@@ -533,67 +533,71 @@
         }
 
         /* Layout helper for the top row */
-/* Layout helper for the top row */
-.header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Changed from flex-end to center for better vertical leveling */
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-}
+        /* Layout helper for the top row */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Changed from flex-end to center for better vertical leveling */
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
 
-.header-left h1 {
-    line-height: 1; /* Prevents hidden descender space from pushing the baseline */
-    margin: 4px 0;
-}
+        .header-left h1 {
+            line-height: 1;
+            /* Prevents hidden descender space from pushing the baseline */
+            margin: 4px 0;
+        }
 
-/* Container for the two terminal buttons */
-.header-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    height: 38px; /* Matches the fixed height of the buttons */
-}
+        /* Container for the two terminal buttons */
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            height: 38px;
+            /* Matches the fixed height of the buttons */
+        }
 
-.terminal-dashboard-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    padding: 0 1.2rem; /* Vertical padding removed to rely on height + flex center */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-    text-decoration: none;
-    height: 38px;
-    box-sizing: border-box;
-}
+        .terminal-dashboard-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0 1.2rem;
+            /* Vertical padding removed to rely on height + flex center */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+            text-decoration: none;
+            height: 38px;
+            box-sizing: border-box;
+        }
 
-.terminal-dashboard-btn .btn-prompt {
-    font-family: var(--font-mono);
-    color: var(--accent);
-    font-weight: 700;
-    font-size: 0.8rem;
-}
+        .terminal-dashboard-btn .btn-prompt {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
 
-.terminal-dashboard-btn .btn-text {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-}
+        .terminal-dashboard-btn .btn-text {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
 
-.terminal-dashboard-btn:hover {
-    border-color: var(--accent);
-    background: rgba(200, 240, 74, 0.05);
-}
+        .terminal-dashboard-btn:hover {
+            border-color: var(--accent);
+            background: rgba(200, 240, 74, 0.05);
+        }
 
-.terminal-dashboard-btn:hover .btn-text {
-    color: var(--text);
-}
+        .terminal-dashboard-btn:hover .btn-text {
+            color: var(--text);
+        }
     </style>
 </head>
 
@@ -605,62 +609,56 @@
     <div class="shell">
 
         {{-- ── Header ── --}}
-       <header>
-    <div class="header-top">
-        <div class="header-left">
-            <p class="eyebrow">// Lab Management System</p>
-            <h1>Equipment <span>Registry</span></h1>
-            <p class="header-meta">Last updated &mdash; {{ now()->format('d M Y, H:i') }}</p>
-        </div>
+        <header>
+            <div class="header-top">
+                <div class="header-left">
+                    <p class="eyebrow">// Lab Management System</p>
+                    <h1>Equipment <span>Registry</span></h1>
+                    <p class="header-meta">Last updated &mdash; {{ now()->format('d M Y, H:i') }}</p>
+                </div>
 
-        <div class="header-actions">
-            @auth
-                @if (!auth()->user()->isResearcher())
-                    <a href="{{ route(auth()->user()->role->name . '.dashboard') }}" class="terminal-dashboard-btn">
-                        <span class="btn-prompt">></span>
-                        <span class="btn-text">{{ strtoupper(auth()->user()->role->name) }}</span>
-                    </a>
-                @endif
-            @endauth
-            {{-- This component must not have external margins --}}
-            <x-logout-welcome />
-        </div>
-    </div>
+                <div class="header-actions">
+                    @auth
+                        @if (!auth()->user()->isResearcher())
+                            <a href="{{ route(auth()->user()->role->name . '.dashboard') }}" class="terminal-dashboard-btn">
+                                <span class="btn-prompt">></span>
+                                <span class="btn-text">{{ strtoupper(auth()->user()->role->name) }}</span>
+                            </a>
+                        @endif
+                        <x-logout-welcome />
+                    @endauth
+                </div>
+            </div>
 
-    <div class="controls">
-        {{-- Search --}}
-        <div class="search-wrap">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input id="search" class="search-input" type="text" placeholder="Search equipment…" autocomplete="off" />
-        </div>
+            <div class="controls">
+                {{-- Search --}}
+                <div class="search-wrap">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input id="search" class="search-input" type="text" placeholder="Search equipment…"
+                        autocomplete="off" />
+                </div>
 
-        {{-- Status filter --}}
-        <select id="status-filter" class="filter-select">
-            <option value="">All statuses</option>
-            <option value="Available">Available</option>
-            <option value="In Use">In Use</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Unavailable">Unavailable</option>
-        </select>
-
-        {{-- Add button --}}
-        @can('create', App\Models\Equipment::class)
-            <a href="{{ route('equipment.create') }}" class="btn btn-primary" style="height:38px; display:inline-flex; align-items:center; padding: 0 1.2rem;">
-                + Add Equipment
-            </a>
-        @endcan
-    </div>
-</header>
+                {{-- Status filter --}}
+                <select id="status-filter" class="filter-select">
+                    <option value="">All statuses</option>
+                    <option value="Available">Available</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Unavailable">Unavailable</option>
+                </select>
+            </div>
+        </header>
         {{-- ── Stats bar ── --}}
         @php
-
             $total = $equipment->total();
-            $available = $equipment->getCollection()->where('status', 'Available')->count();
-            $inUse = $equipment->getCollection()->where('status', 'In Use')->count();
+            $idle = $equipment->getCollection()->where('status', 'Idle')->count();
+            $active = $equipment->getCollection()->where('status', 'Active')->count();
             $maintenance = $equipment->getCollection()->where('status', 'Maintenance')->count();
+            $locked = $equipment->getCollection()->where('status', 'Locked')->count();
         @endphp
 
         <div class="stats-bar">
@@ -670,15 +668,19 @@
             </div>
             <div class="stat">
                 <span class="stat-label">Available</span>
-                <span class="stat-value" style="color:var(--green)">{{ $available }}</span>
+                <span class="stat-value" style="color:var(--green)">{{ $idle }}</span>
             </div>
             <div class="stat">
                 <span class="stat-label">In Use</span>
-                <span class="stat-value" style="color:var(--blue)">{{ $inUse }}</span>
+                <span class="stat-value" style="color:var(--blue)">{{ $active }}</span>
             </div>
             <div class="stat">
                 <span class="stat-label">Maintenance</span>
                 <span class="stat-value" style="color:var(--amber)">{{ $maintenance }}</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Locked</span>
+                <span class="stat-value" style="color:var(--red)">{{ $locked }}</span>
             </div>
         </div>
 
@@ -689,14 +691,16 @@
 
                 @php
                     $badgeClass = match ($item->status) {
-                        'Available' => 'badge-available',
-                        'In Use' => 'badge-in-use',
+                        'Idle' => 'badge-idle',
+                        'Active' => 'badge-active',
                         'Maintenance' => 'badge-maintenance',
+                        'Locked' => 'badge-locked',
                         default => 'badge-unavailable',
                     };
-
+                    $category = $item->category->name ?? 'No Category';
                     $canBook =
-                        $item->status === 'Available' && auth()->user()?->clearance_level >= $item->required_clearance;
+                        $item->status === 'Idle' && auth()->user()?->clearance_level >= $item->required_clearance;
+
                 @endphp
 
                 <div class="card" data-name="{{ strtolower($item->name) }}" data-status="{{ $item->status }}">
@@ -713,6 +717,10 @@
 
                     {{-- Meta --}}
                     <div class="meta-list">
+                        <div class="meta-row">
+                            <span class="meta-key">Category</span>
+                            <span class="meta-val accent">{{ $category }}</span>
+                        </div>
                         <div class="meta-row">
                             <span class="meta-key">Hourly Rate</span>
                             <span class="meta-val accent">${{ number_format($item->hourly_rate, 2) }}/hr</span>

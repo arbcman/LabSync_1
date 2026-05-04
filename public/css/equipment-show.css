@@ -125,7 +125,7 @@ body {
     background: currentColor;
 }
 
-.badge-available {
+.badge-idle {
     color: var(--green);
     background: rgba(61, 220, 132, .1);
 }
@@ -140,7 +140,7 @@ body {
     background: rgba(245, 166, 35, .1);
 }
 
-.badge-unavailable {
+.badge-locked {
     color: var(--red);
     background: rgba(255, 77, 90, .1);
 }

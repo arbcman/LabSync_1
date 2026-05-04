@@ -15,13 +15,13 @@ use Laravel\Fortify\Features;
 
 
 
-
 Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:Admin')->name('Admin.dashboard');
 
     Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:Lab_Manager')->name('Lab_Manager.dashboard');
-    Route::get('/researcher/dashboard', fn() => view('dashboards.researcher'))->middleware('role:Researcher')->name('Researcher.dashboard');
+    Route::get('/researcher', fn() => view('welcome'))->middleware('role:Researcher')->name('Researcher.dashboard');
 
     Route::get('/pi/dashboard', fn() => view('dashboards.pi'))->middleware('role:PI')->name('PI.dashboard');
 

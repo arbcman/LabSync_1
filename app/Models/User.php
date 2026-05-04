@@ -60,31 +60,15 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    public function certifications(){
+        return $this->hasMany(Certification::class);
+    }
+    
     protected $with = ['role'];
 
     public function isResearcher(): bool
     {
         return $this->role && $this->role->name == "Researcher";
-    }
-
-    public function isLabManager(): bool
-    {
-        return $this->role === self::ROLE_LAB_MANAGER;
-    }
-
-    public function isAuditor(): bool
-    {
-        return $this->role === self::ROLE_AUDITOR;
-    }
-
-    public function isSystemAdmin(): bool
-    {
-        return $this->role === self::ROLE_SYSTEM_ADMIN;
-    }
-
-    public function isPI(): bool
-    {
-        return $this->role === self::ROLE_PI;
     }
 
     public function hasRole(string $role): bool
