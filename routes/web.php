@@ -17,14 +17,14 @@ use Laravel\Fortify\Features;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
-    Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:Admin')->name('admin.dashboard');
+    Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:Admin')->name('Admin.dashboard');
 
-    Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:Lab_Manager')->name('labmanager.dashboard');
-    Route::get('/researcher/dashboard', fn() => view('dashboards.researcher'))->middleware('role:Researcher')->name('researcher.dashboard');
+    Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:Lab_Manager')->name('Lab_Manager.dashboard');
+    Route::get('/researcher/dashboard', fn() => view('dashboards.researcher'))->middleware('role:Researcher')->name('Researcher.dashboard');
 
-    Route::get('/pi/dashboard', fn() => view('dashboards.pi'))->middleware('role:PI')->name('pi.dashboard');
+    Route::get('/pi/dashboard', fn() => view('dashboards.pi'))->middleware('role:PI')->name('Pi.dashboard');
 
-    Route::get('/auditor/dashboard', fn() => view('dashboards.auditor'))->middleware('role:Auditor')->name('auditor.dashboard');
+    Route::get('/auditor/dashboard', fn() => view('dashboards.auditor'))->middleware('role:Auditor')->name('Auditor.dashboard');
     Route::post('/logout', [Logout::class, '__invoke'])->name('logout');
 });
 

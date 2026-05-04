@@ -54,9 +54,17 @@ class User extends Authenticatable
     ];
 
 
+    // Foreign ID [ user->role_id ===> roles table ]
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    protected $with = ['role'];
+
     public function isResearcher(): bool
     {
-        return $this->role === self::ROLE_RESEARCHER;
+        return $this->role && $this->role->name == "Researcher";
     }
 
     public function isLabManager(): bool
@@ -84,12 +92,6 @@ class User extends Authenticatable
         return $this->role === $role;
     }
 
-
-    // Foreign ID [ user->role_id ===> roles table ]
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
 
     // Return iD 
     public function getID()

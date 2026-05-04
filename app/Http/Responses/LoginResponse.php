@@ -12,11 +12,11 @@ class LoginResponse implements LoginResponseContract
     {
         $user = auth()->user();
         return match ($user->role_id) {
-            User::ROLE_SYSTEM_ADMIN => redirect()->route('admin.dashboard'),
-            User::ROLE_LAB_MANAGER => redirect()->route('labmanager.dashboard'),
-            User::ROLE_PI => redirect()->route('pi.dashboard'),
-            User::ROLE_RESEARCHER => redirect()->route('researcher.dashboard'),
-            User::ROLE_AUDITOR => redirect()->route('auditor.dashboard'),
+            User::ROLE_SYSTEM_ADMIN => redirect()->route('Admin.dashboard'),
+            User::ROLE_LAB_MANAGER => redirect()->route('Lab_Manager.dashboard'),
+            User::ROLE_PI => redirect()->route('Pi.dashboard'),
+            User::ROLE_RESEARCHER => redirect()->route('Researcher.dashboard'),
+            User::ROLE_AUDITOR => redirect()->route('Auditor.dashboard'),
             default => redirect('/'),
         };
     }
