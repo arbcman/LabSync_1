@@ -123,6 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'available_hours_per_week' => 168,
     'normalization_factor' => 13.37,
 
 ];

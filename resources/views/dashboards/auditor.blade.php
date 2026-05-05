@@ -52,6 +52,7 @@
             <div class="sidebar-footer">
                 Logged in as<br>{{ auth()->user()->name ?? 'Auditor' }}
             </div>
+
         </aside>
 
         {{-- ══ Main ══ --}}
@@ -67,7 +68,10 @@
                     <span class="topbar-badge">AUDITOR</span>
                     <div class="avatar">
                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
+
                     </div>
+                <x-nav-actions />
+
                 </div>
             </div>
 
