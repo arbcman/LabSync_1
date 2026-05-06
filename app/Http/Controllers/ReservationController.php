@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
-use App\Models\Reservation;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
 
@@ -24,7 +23,7 @@ class ReservationController extends Controller
 
     public function store(Request $request, $id)
     {
-        
+
         $equipment = Equipment::findOrFail($id);
 
         $validated = $request->validate([

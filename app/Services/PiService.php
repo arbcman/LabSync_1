@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Reservation;
+use App\Models\Equipment;
+use App\Models\PiProfile;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -11,13 +13,7 @@ use Illuminate\Support\Facades\Hash;
 
 class PiService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+
 
     public function StoreorUpdateResearcher(array $data)
     {
@@ -35,7 +31,7 @@ class PiService
                 'clearance_level' => $data['clearance_level'],
             ];
             if (!empty($data['user_pass'])) {
-                $values['password'] = Hash::make($data['user_pass']);
+                $userValues['password'] = Hash::make($data['user_pass']);
             }
 
             $user = User::updateOrCreate(['email' => $data['user_email']], $userValues);
@@ -56,8 +52,16 @@ class PiService
 
     public function notifyPI(Reservation $reservation): void {}
 
-    public function approve(Reservation $reservation): void
+    public function approve(Reservation $reservation, float $cost): void
     {
+        $pi = auth()->user()->piProfile;
+
+        if ($cost > $pi->budget_limit) {
+            throw new \Exception("Budget exceeded");
+        }
+        $budgetNew = $pi->budget_limit - $cost;
+        $pi->update(['budget_limit' => $budgetNew]);
+
         $reservation->update(['status' => 'Approved']);
     }
 

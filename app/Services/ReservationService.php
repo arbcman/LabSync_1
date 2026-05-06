@@ -3,14 +3,11 @@
 namespace App\Services;
 
 use App\Models\Reservation;
+use Carbon\Carbon;
 
 class ReservationService
 {
-    protected $piService;
-    public function __construct(PiService $piService)
-    {
-        $this->piService = $piService;
-    }
+
 
     public function makeReservation(array $data): Reservation
     {
@@ -23,12 +20,17 @@ class ReservationService
             'status'       => 'Pending',
         ]);
 
-        $this->sendToPIForApproval($reservation);
         return $reservation;
     }
 
-    protected function sendToPIForApproval(Reservation $reservation)
+
+    public function calculateCost(Reservation $reservation): float
     {
-        $this->piService->notifyPI($reservation);
+        $start = Carbon::parse($reservation->start_time);
+        $end = Carbon::parse($reservation->end_time);
+
+        $hours = $start->diffInMinutes($end) / 60;
+
+        return $hours * $reservation->equipment->hourly_rate;
     }
 }

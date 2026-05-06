@@ -58,15 +58,6 @@ class User extends Authenticatable
 
 
     // Foreign ID [ user->role_id ===> roles table ]
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    public function certifications()
-    {
-        return $this->hasMany(Certification::class);
-    }
 
     protected $with = ['role'];
 
@@ -74,11 +65,7 @@ class User extends Authenticatable
     {
         return $this->role && $this->role->name == "Researcher";
     }
-
-    public function hasRole(string $role): bool
-    {
-        return $this->role === $role;
-    }
+    // PROFILES 
 
     public function piProfile()
     {
@@ -96,9 +83,23 @@ class User extends Authenticatable
     {
         return $this->hasOne(ResearcherProfile::class);
     }
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function certifications()
+    {
+        return $this->hasMany(Certification::class);
+    }
+    // =======
     public function reservation(): HasMany
     {
         return $this->hasMany(Reservation::class);
+    }
+    public function equipmentSession(): HasMany
+    {
+        return $this->hasMany(EquipmentSession::class);
     }
     // Return iD 
     public function getID()

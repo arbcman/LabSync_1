@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PiProfile extends Model
 {
+    protected $primaryKey = 'user_id';
+    
     public $timestamps = false;
     protected $fillable = [
         'user_id',

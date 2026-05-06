@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PiProfile;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Services\PiService;
+use App\Services\ReservationService;
 use Illuminate\Http\Request;
 
 class PiController extends Controller
 {
     protected $piService;
-
-    public function __construct(PiService $piService)
+    protected $reservationService;
+    public function __construct(PiService $piService, ReservationService $reservationService)
     {
         $this->piService = $piService;
+        $this->reservationService = $reservationService;
     }
 
     public function store(Request $request)
@@ -38,13 +41,11 @@ class PiController extends Controller
 
     public function dashboard()
     {
-        // Pull every Pending reservation with just the two relations
-        // the blade needs: user name + equipment name.
+
         $pendingReservations = Reservation::where('status', 'Pending')
             ->with(['user', 'equipment'])   // add these relations to your models (see section 4)
             ->orderBy('created_at', 'asc')  // oldest first — fairest queue order
             ->get();
-
         return view('dashboards.pi', compact('pendingReservations'));
     }
 
@@ -55,13 +56,13 @@ class PiController extends Controller
                 ->with('error', 'Reservation is no longer pending.');
         }
 
-        $this->piService->approve($reservation);
+        $cost = $this->reservationService->calculateCost($reservation);
 
-        return redirect()->route('PI.dashboard', ['tab' => 'pending'])
-            ->with('success', "Reservation #{$reservation->id} approved.");
+
+        $this->piService->approve($reservation, $cost);
+        return redirect()->route('PI.dashboard', ['tab' => 'pending'])->with('success', "Reservation #{$reservation->id} approved.");
     }
 
-    // ── Reject ────────────────────────────────────────────────
     public function reject(Reservation $reservation)
     {
         if ($reservation->status !== 'Pending') {
@@ -71,7 +72,6 @@ class PiController extends Controller
 
         $this->piService->reject($reservation);
 
-        return redirect()->route('PI.dashboard', ['tab' => 'pending'])
-            ->with('success', "Reservation #{$reservation->id} rejected.");
+        return redirect()->route('PI.dashboard', ['tab' => 'pending'])->with('success', "Reservation #{$reservation->id} rejected.");
     }
 }

@@ -31,9 +31,23 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
+            $action = null;
+            if ($model->wasRecentlyCreated) $action = 'Created';
+            elseif ($model->getOriginal('status') !== $model->status) {
+                $status = strtolower($model->status);
+
+                if ($status === 'approved') {
+                    $action = 'Approved';
+                } elseif ($status === 'rejected') {
+                    $action = 'Rejected';
+                }
+            } else {
+                $action = 'Updated';
+            }
+
             AuditTrails::create([
                 'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                'action'  => ($model->wasRecentlyCreated ? 'Created ' : 'Updated ') . get_class($model) . ' ID: ' . $model->id,
+                'action' => "{$action} " . class_basename($model) . " #{$model->id}",
                 'user_ip' => request()->ip(),
             ]);
         });

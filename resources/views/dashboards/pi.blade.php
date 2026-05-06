@@ -1,8 +1,3 @@
-{{-- ============================================================
-FILE: resources/views/pi/dashboard.blade.php
-(drop-in replacement for the blade you shared)
-============================================================ --}}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -443,7 +438,8 @@ FILE: resources/views/pi/dashboard.blade.php
                             <p class="res-label">
                                 {{ optional($reservation->equipment)->name ?? 'Unknown Equipment' }}
                             </p>
-                            <p class="res-label">{{ $reservation->equipment->hourly_rate }}</p>
+                            <p class="res-label"> Total Cost:
+                                {{ app('App\Services\ReservationService')->calculateCost($reservation) }}</p>
                             <p class="res-sub">
                                 Researcher: <span>{{ optional($reservation->user)->name ?? '—' }}</span><br>
                                 From:

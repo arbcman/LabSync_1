@@ -719,6 +719,7 @@
                         $item->status === 'Idle' &&
                         auth()->user()?->clearance_level >= $item->required_clearance &&
                         auth()->user()->isResearcher();
+                        
                 @endphp
 
                 <div class="card" data-name="{{ strtolower($item->name) }}" data-status="{{ $item->status }}">
@@ -824,7 +825,6 @@
         @endif
 
     </div>{{-- /shell --}}
-
     {{-- ── Client-side search & filter (no page reload) ── --}}
     <script>
         const searchInput = document.getElementById('search');
