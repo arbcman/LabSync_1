@@ -249,6 +249,29 @@
             font-size: 0.85rem;
             border-radius: 4px;
         }
+
+        /* ── Utilization Heatmap (simplified & aligned) ── */
+        .heatmap-container { margin-top: 1rem; display:flex; flex-direction:column; gap:8px; }
+        .heatmap-wrap { overflow-x:auto; }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: 96px repeat(24, 28px);
+            gap: 6px;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            justify-content: start;
+        }
+        .heatmap-label { color: var(--muted); text-transform: uppercase; padding: 4px 8px; width:88px; box-sizing:border-box; }
+        .heatmap-cell {
+            width:28px; height:28px; border-radius:3px; background: rgba(255,255,255,0.02);
+            display:flex; align-items:center; justify-content:center; color: transparent; position:relative;
+        }
+        .heatmap-cell .hint { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color: var(--text); font-size:0.65rem; opacity:0; transition: opacity 0.12s; white-space:nowrap; }
+        .heatmap-cell:hover .hint { opacity: 1; }
+        .heatmap-legend { display:flex; gap:8px; align-items:center; margin-top:6px; }
+        .legend-swatch { width:120px; height:12px; border-radius:6px; background: linear-gradient(90deg, rgba(10,10,10,0.05), rgba(200,240,74,0.95)); box-shadow: inset 0 0 8px rgba(0,0,0,0.6); }
+        .legend-label { color: var(--muted); font-family: var(--font-mono); font-size:0.8rem; }
     </style>
 </head>
 
@@ -284,6 +307,7 @@
                 </div>
             </form>
         </section>
+        <!-- heatmap placeholder moved below to keep sections separate -->
 
         <section>
             <h2>Catalog New Asset</h2>
@@ -360,7 +384,67 @@
                 <button type="submit" class="btn-submit">Initialize Asset Protocol</button>
             </form>
         </section>
+        <section>
+            <h2>Utilization Heatmap</h2>
+            <div class="heatmap-container">
+                <div class="heatmap-wrap">
+                    <div id="heatmap" class="heatmap-grid">
+                        <!-- JS will render: one label column + 24 fixed cells per row -->
+                    </div>
+                </div>
+
+                <div class="heatmap-legend">
+                    <div class="legend-swatch" aria-hidden="true"></div>
+                    <div class="legend-label">Low</div>
+                    <div style="flex:1"></div>
+                    <div class="legend-label">High</div>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <script>
+        // Fetch utilization data and render the heatmap grid
+        (async function renderHeatmap(){
+            try {
+                const resp = await fetch('/labmanager/heatmap');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const container = document.getElementById('heatmap');
+                container.innerHTML = '';
+
+                // simplified grid: label column + 24 fixed cells per day (no hour header)
+                data.days.forEach((day, dIdx) => {
+                    const label = document.createElement('div');
+                    label.className = 'heatmap-label';
+                    label.textContent = day;
+                    container.appendChild(label);
+
+                    for (let h = 0; h < 24; h++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'heatmap-cell';
+                        const percent = (data.percents[dIdx] && data.percents[dIdx][h]) ? data.percents[dIdx][h] : 0;
+                        const count = (data.counts[dIdx] && data.counts[dIdx][h]) ? data.counts[dIdx][h] : 0;
+
+                        // convert percent to a color intensity (use accent color with alpha)
+                        const alpha = Math.min(0.95, Math.max(0.03, percent / 100));
+                        cell.style.background = `rgba(200,240,74, ${alpha})`;
+
+                        const hint = document.createElement('div');
+                        hint.className = 'hint';
+                        hint.textContent = `${Math.round(percent)}% (${count})`;
+                        cell.appendChild(hint);
+
+                        cell.title = `${day} ${h}:00 — ${Math.round(percent)}% utilization (${count} sessions)`;
+                        container.appendChild(cell);
+                    }
+                });
+
+            } catch (err) {
+                console.error('Heatmap load failed', err);
+            }
+        })();
+    </script>
 
 </body>
 

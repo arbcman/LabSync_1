@@ -6,6 +6,7 @@ use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\EquipmentSessionController;
 use App\Http\Controllers\LabManagerController;
 use App\Http\Controllers\PiController;
+use App\Http\Controllers\HeatmapController;
 use App\Http\Controllers\ResearcherController;
 use App\Http\Controllers\ReservationController;
 use App\Livewire\Actions\Logout;
@@ -28,7 +29,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/auditor/dashboard', [AuditorController::class, 'dashboard'])->name('Auditor.dashboard')->middleware('role:Auditor');
     Route::get('/researcher/dashboard', [ResearcherController::class, 'dashboard'])->name('Researcher.dashboard')->middleware('role:Researcher');
 
-    //Functions    
+    //Functions
     Route::post('/logout', [Logout::class, '__invoke'])->name('logout');
     Route::get('/equipment/{id}', [EquipmentController::class, 'show'])->name('equipment.show');
 });
@@ -47,6 +48,7 @@ Route::middleware(['auth', 'role:PI'])->group(function () {
 route::middleware(['auth', 'role:Lab_Manager'])->group(function () {
     Route::post('/LabmStoreEquipment', [LabManagerController::class, 'store'])->name('LabM.equipment.store');
     Route::delete('/LabmDeleteEquipment', [LabManagerController::class, 'destroy'])->name('LabM.equipment.destroy');
+    Route::get('/labmanager/heatmap', [HeatmapController::class, 'utilization'])->name('LabM.heatmap');
 });
 
 Route::middleware(['auth', 'role:Researcher'])->group(function () {
