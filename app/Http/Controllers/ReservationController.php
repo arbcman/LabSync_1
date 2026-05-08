@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NotifyPI;
 use App\Models\Equipment;
 use App\Services\PiService;
 use App\Services\ReservationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ReservationController extends Controller
 {
@@ -41,8 +43,13 @@ class ReservationController extends Controller
         ];
 
 
-        // 3. Call the service
-        $this->reservationService->makeReservation($data);
+        $reservation = $this->reservationService->makeReservation($data);
+        $researcher = auth()->user()->researcherProfile;
+
+        $piEmail = 'pi@lab.com';
+
+        Mail::to($piEmail)->send(new NotifyPI($reservation, $researcher));
+
 
         return redirect()->route('equipment.index')->with('success', 'Reservation submitted and pending approval.');
     }

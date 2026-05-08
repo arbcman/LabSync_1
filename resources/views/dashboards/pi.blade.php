@@ -370,11 +370,9 @@
         {{-- Flash messages --}}
         @if (session('success'))
             <div class="alert-success">&gt; {{ session('success') }}</div>
-        @endif
-        @if (session('fail'))
-            <div class="alert-success">&gt; {{ session('fail') }}</div>
-        @endif
-        @if (session('error'))
+        @elseif (session('fail'))
+            <div class="alert-error">&gt; {{ session('fail') }}</div>
+        @elseif (session('error'))
             <div class="alert-error">&gt; {{ session('error') }}</div>
         @endif
 

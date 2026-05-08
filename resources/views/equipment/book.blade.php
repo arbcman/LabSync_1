@@ -188,7 +188,7 @@
                             <div class="field">
                                 <label for="quantity">Quantity</label>
                                 <input type="number" id="quantity" name="quantity" min="1"
-                                    max="{{ $equipment->quantity - 1 }}" required />
+                                    max="{{ ($equipment->quantity - 1 == 0) ? 1 : $equipment->quantity - 1 }}" required />
                             </div>
 
                             {{-- Live cost preview --}}

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Http\Responses\LoginResponse;
 use App\Models\AuditTrails;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -65,5 +67,25 @@ class AppServiceProvider extends ServiceProvider
                 'user_ip' => request()->ip(),
             ]);
         });
+        Event::listen(Login::class, function ($event) {
+            AuditTrails::create([
+                'user_id' => $event->user->id,
+                'action'  => '(Logged In)',
+                'user_ip' => request()->ip(),
+            ]);
+        });
+
+        Event::listen(Logout::class, function ($event) {
+            if ($event->user) {
+                AuditTrails::create([
+                    'user_id' => $event->user->id,
+                    'action'  => '(Logged Out)',
+                    'user_ip' => request()->ip(),
+                ]);
+            }
+        });
+
+
+        \App\Models\Transaction::observe(\App\Observers\TransactionObserver::class);
     }
 }

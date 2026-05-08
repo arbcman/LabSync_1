@@ -9,9 +9,11 @@ class EquipmentController extends Controller
 {
     public function index()
     {
-        $equipment = Equipment::paginate(12);
+        $user = auth()->user();
+        $userCertificates = $user?->researcherProfile?->certification ?? collect();
+        $equipment = Equipment::with('category')->paginate(12);
 
-        return view('welcome', compact('equipment'));
+        return view('welcome', compact('equipment', 'userCertificates'));
     }
 
     public function show($id)
@@ -22,6 +24,6 @@ class EquipmentController extends Controller
     public function book($id)
     {
         $equipment = Equipment::findOrFail($id);
-        return view('equipment.book' , compact('equipment'));
+        return view('equipment.book', compact('equipment'));
     }
 }

@@ -268,10 +268,9 @@ class DatabaseSeeder extends Seeder
         // 7. CERTIFICATIONS  (base + equipment_category_id from 2nd migration)
         // ----------------------------------------------------------------
         $certifications = [
-            ['user_id' => $carolId, 'equipment_id' => $semId,    'equipment_category_id' => $microCatId, 'expiry_date' => '2026-12-31'],
-            ['user_id' => $carolId, 'equipment_id' => $ftirId,   'equipment_category_id' => $specCatId,  'expiry_date' => '2026-09-30'],
-            ['user_id' => $eveId,   'equipment_id' => $xrdId,    'equipment_category_id' => $charCatId,  'expiry_date' => '2025-11-30'],
-            ['user_id' => $danId,   'equipment_id' => $sputterID, 'equipment_category_id' => $fabCatId,   'expiry_date' => '2027-03-01'],
+            ['user_id' => $carolId, 'equipment_category_id' => $microCatId, 'expiry_date' => '2026-12-31'],
+            ['user_id' => $carolId, 'equipment_category_id' => $specCatId,  'expiry_date' => '2026-09-30'],
+
         ];
 
         foreach ($certifications as $cert) {
@@ -348,24 +347,20 @@ class DatabaseSeeder extends Seeder
                 'equipment_id'    => $semId,
                 'start_time'      => Carbon::now()->subDays(5)->setTime(9, 0),
                 'end_time'        => Carbon::now()->subDays(5)->setTime(11, 0),
-                'status'          => 'Completed',
-                'approval_status' => 'Approved',
             ],
             [
                 'user_id'         => $carolId,
                 'equipment_id'    => $ftirId,
                 'start_time'      => Carbon::now()->subDays(3)->setTime(14, 0),
                 'end_time'        => Carbon::now()->subDays(3)->setTime(16, 0),
-                'status'          => 'Completed',
-                'approval_status' => 'Approved',
+
             ],
             [
                 'user_id'         => $eveId,
                 'equipment_id'    => $xrdId,
                 'start_time'      => Carbon::now()->subDays(1)->setTime(10, 0),
-                'end_time'        => null,
-                'status'          => 'Active',
-                'approval_status' => 'Approved',
+                'end_time'        => now(),
+
             ],
         ];
 

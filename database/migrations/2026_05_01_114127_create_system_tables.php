@@ -30,13 +30,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('certifications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('equipment_id')->constrained('equipment')->cascadeOnDelete();
-            $table->date('expiry_date');
-            $table->timestamps();
-        });
 
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
@@ -66,6 +59,12 @@ return new class extends Migration
             $table->foreignId('user_id')->primary()->constrained('users')->cascadeOnDelete();
             $table->string('academicLevel')->nullable();
             $table->foreignId('pis_id')->nullable()->constrained('pi_profiles', 'user_id')->nullOnDelete();
+        });
+        Schema::create('certifications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained(table: 'researcher_profiles', column: 'user_id')->cascadeOnDelete();
+            $table->date('expiry_date');
+            $table->timestamps();
         });
 
         Schema::create('grants', function (Blueprint $table) {

@@ -8,4 +8,8 @@ class Category extends Model
 {
 
     protected $table = 'equipment_categories';
+
+    public function certification(){
+        return $this->hasOne(Certification::class);
+    }
 }

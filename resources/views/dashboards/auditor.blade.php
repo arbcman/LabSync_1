@@ -70,7 +70,7 @@
                         {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
 
                     </div>
-                <x-nav-actions />
+                    <x-nav-actions />
 
                 </div>
             </div>
@@ -348,6 +348,7 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        <a href="{{ route('export-pdf') }}"> Export All Audit Logs</a>
                     </div>
                 </div>
 

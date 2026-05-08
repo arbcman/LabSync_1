@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ResearcherProfile extends Model
 {
@@ -19,7 +20,10 @@ class ResearcherProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function certification(): HasMany
+    {
+        return $this->hasMany(Certification::class, 'user_id', 'user_id');
+    }
     public function isClear(): bool
     {
         return ($this->academicLevel === $this->user->assignClearance());

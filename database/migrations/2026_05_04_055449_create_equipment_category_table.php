@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('cooldown_buffer')->default(0);
         });
         Schema::table('certifications', function (Blueprint $table) {
-            $table->foreignId('equipment_category_id')->nullable()->constrained('equipment_categories')->cascadeOnDelete();
+            $table->foreignId('equipment_category_id')->after('expiry_date')->nullable()->constrained('equipment_categories')->cascadeOnDelete();
         });
         Schema::create('safety_logs', function (Blueprint $table) {
             $table->id();

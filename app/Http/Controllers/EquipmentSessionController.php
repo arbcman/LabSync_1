@@ -41,8 +41,10 @@ class EquipmentSessionController extends Controller
             'user_id' => auth()->id(),
             'start_time' => now(),
         ]);
+
         $equipment->update([
             'status' => 'Active',
+            'quantity' => $equipment->quantity - 1,
         ]);
         return redirect()->route('Researcher.dashboard')->with('success', 'Session started!');
     }
@@ -58,7 +60,10 @@ class EquipmentSessionController extends Controller
 
         $equipment = $session->equipment;
 
-        $equipment->update(['status' => 'Idle']);
+        $equipment->update([
+            'status' => 'Idle',
+            'quantity' => $equipment->quantity + 1,
+        ]);
 
         $durationInHours = $session->start_time->diffInMinutes($session->end_time) / 60;
         $Cost = $durationInHours * $session->equipment->hourly_rate;

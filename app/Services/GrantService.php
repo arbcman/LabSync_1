@@ -18,6 +18,7 @@ class GrantService
         }
         $newBalance = $grant->balance - $cost;
         $grant->update(['balance' => $newBalance]);
+        
         return true;
     }
 }

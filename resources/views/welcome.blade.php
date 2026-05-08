@@ -67,11 +67,20 @@
                     <option value="Locked">Unavailable</option>
                 </select>
 
+
                 <select id="category-filter" class="filter-select">
                     <option value="">All Categories</option>
-                    @foreach ($equipment->pluck('category.name')->unique() as $categoryName)
-                        <option value="{{ strtolower($categoryName) }}">{{ $categoryName }}</option>
-                    @endforeach
+
+                    @if ($userCertificates->isNotEmpty())
+                        @php
+                            $myCategoryIds = $userCertificates->pluck('equipment_category_id')->unique()->toArray();
+                            $certifiedCategories = \App\Models\Category::whereIn('id', $myCategoryIds)->get();
+                        @endphp
+
+                        @foreach ($certifiedCategories as $cat)
+                            <option value="{{ strtolower($cat->name) }}">{{ $cat->name }}</option>
+                        @endforeach
+                    @endif
                 </select>
             </div>
         </header>
@@ -125,7 +134,11 @@
                             default => 'badge-unavailable',
                         };
                         $category = $item->category->name ?? 'No Category';
-                        $canBook = $item->status === 'Idle' || $item->status === 'Active';
+                        $availableItem = $item->status === 'Idle' || $item->status === 'Active';
+
+                        $currentCert = $userCertificates->where('equipment_category_id', $item->category_id)->first();
+                        $isExpired = $currentCert?->expiry_date < now();
+                        $isCertified = $currentCert && !$isExpired;
                     @endphp
 
                     <div class="card" data-name="{{ strtolower($item->name) }}" data-status="{{ $item->status }}"
@@ -175,10 +188,20 @@
                             </a>
 
                             @auth
-                                @if ($canBook)
-                                    <a href="{{ route('equipment.book', $item->id) }}" class="btn btn-primary">
-                                        Book Session
-                                    </a>
+                                @if ($availableItem)
+                                    @if ($currentCert)
+                                        @if ($currentCert->expiry_date >= now())
+                                            <a href="{{ route('equipment.book', $item->id) }}" class="btn btn-primary">
+                                                Book Session
+                                            </a>
+                                        @else
+                                            <button class="btn btn-danger" disabled>Expired
+                                                ({{ $currentCert->expiry_date->format('Y-m-d') }})
+                                            </button>
+                                        @endif
+                                    @else
+                                        <button class="btn btn-danger" disabled>No Certificate Found</button>
+                                    @endif
                                 @else
                                     <span class="btn btn-primary disabled">
                                         {{ auth()->user()->isResearcher() ? ($item->status !== 'Idle' ? 'Unavailable' : 'No Clearance') : 'You aren\'t authorized to Book' }}
