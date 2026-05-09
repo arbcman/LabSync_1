@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\EquipmentSessionController;
 use App\Models\Equipment;
+use App\Models\PublicationLink;
 use App\Models\Reservation;
 use App\Models\Role;
 use App\Models\User;
@@ -66,8 +67,7 @@ class PiService
             $transaction = app(TransactionService::class);
             $transaction->makeNew($eqpSession, $cost);
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -80,5 +80,35 @@ class PiService
         $equipment->update([
             'quantity' => $quantity,
         ]);
+    }
+
+    public function usedEquipments($pi)
+    {
+        return Equipment::whereHas('reservation', function ($q) use ($pi) {
+            $q->whereIn(
+                'user_id',
+                $pi->researchers()->pluck('user_id')
+            )
+                ->where('status', 'approved');
+        })->get();
+    }
+
+    public function publicationLinks()
+    {
+        return PublicationLink::where('pi_id', auth()->user()->piProfile->user_id)
+            ->with('equipment')
+            ->latest()
+            ->get();
+    }
+
+    public function storePublication(array $data)
+    {
+        $publicationLink = PublicationLink::create([
+            'equipment_id' => $data['equipment_id'],
+            'pi_id' => $data['pi_id'],
+            'doi' => $data['doi'],
+        ]);
+
+        return $publicationLink;
     }
 }

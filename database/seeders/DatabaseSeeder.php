@@ -415,9 +415,9 @@ class DatabaseSeeder extends Seeder
         // 13. PUBLICATION LINKS
         // ----------------------------------------------------------------
         $publications = [
-            ['equipment_id' => $semId,  'doi' => '10.1038/s41586-024-00001-x'],
-            ['equipment_id' => $ftirId, 'doi' => '10.1021/acs.analchem.4c00001'],
-            ['equipment_id' => $xrdId,  'doi' => '10.1107/S1600576724000001'],
+            ['equipment_id' => $semId, 'pi_id' => $bobId, 'doi' => '10.1038/s41586-024-00001-x'],
+            ['equipment_id' => $ftirId, 'pi_id' => $PIId, 'doi' => '10.1021/acs.analchem.4c00001'],
+            ['equipment_id' => $xrdId, 'pi_id' => $PIId, 'doi' => '10.1107/S1600576724000001'],
         ];
 
         foreach ($publications as $pub) {

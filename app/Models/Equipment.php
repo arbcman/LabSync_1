@@ -35,11 +35,11 @@ class Equipment extends Model
         'required_clearance' => 'integer',
     ];
 
-    public static function totalUsageHours()
-    {
-        return 0;
-    }
 
+    public function needsMaintenance(): bool
+    {
+        return $this->total_usage_hours >= $this->calibration_threshold;
+    }
 
     public function equipment_session(): HasMany
     {

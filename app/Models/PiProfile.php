@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PiProfile extends Model
 {
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
 
     public $timestamps = false;
     protected $fillable = [
@@ -25,5 +26,10 @@ class PiProfile extends Model
     public function grants(): HasMany
     {
         return $this->hasMany(Grant::class, 'pi_id', 'user_id');
+    }
+
+    public function researchers(): HasMany
+    {
+        return $this->hasMany(ResearcherProfile::class, 'pis_id', 'user_id');
     }
 }

@@ -34,7 +34,10 @@ class LabMService
         return  Equipment::where('id', $id)->firstOrFail()->delete();
     }
 
-    public function sayHiService(){
-        return 'hi';
+
+    public function setMaintenance(Equipment $equipment)
+    {
+        $equipment->update(['status' => 'Maintenance']);
+        return redirect()->route('Lab_Manager.dashboard', ['tab' => 'inventory'])->with('success', '...');
     }
 }

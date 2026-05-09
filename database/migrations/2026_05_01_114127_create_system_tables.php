@@ -86,6 +86,7 @@ return new class extends Migration
         Schema::create('publication_links', function (Blueprint $table) {
             $table->id();
             $table->foreignId('equipment_id')->constrained('equipment')->cascadeOnDelete();
+            $table->foreignId('pi_id')->constrained('pi_profiles', 'user_id')->cascadeOnDelete();
             $table->string('doi', 100);
             $table->timestamps();
         });

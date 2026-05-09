@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Equipment;
 use App\Models\PiProfile;
 use App\Models\Reservation;
 use App\Models\User;
@@ -41,12 +42,15 @@ class PiController extends Controller
 
     public function dashboard()
     {
-
+        $pi = auth()->user()->piProfile;
+        $usedEquipments = $this->piService->usedEquipments($pi);
+        $publicationLinks = $this->piService->publicationLinks();
         $pendingReservations = Reservation::where('status', 'Pending')
             ->with(['user', 'equipment'])   // add these relations to your models (see section 4)
             ->orderBy('created_at', 'asc')  // oldest first — fairest queue order
             ->get();
-        return view('dashboards.pi', compact('pendingReservations'));
+
+        return view('dashboards.pi', compact('pendingReservations', 'usedEquipments', 'publicationLinks'));
     }
 
     public function approve(Reservation $reservation)
@@ -75,5 +79,17 @@ class PiController extends Controller
         $this->piService->reject($reservation);
 
         return redirect()->route('PI.dashboard', ['tab' => 'pending'])->with('success', "Reservation #{$reservation->id} rejected.");
+    }
+
+    public function storePublication(Request $request)
+    {
+        $rules = [
+            'equipment_id' => 'required|exists:equipment,id',
+            'doi' => 'required|string',
+            'pi_id' => 'required|integer',
+        ];
+        $validated = $request->validate($rules);
+        $publicationLink = $this->piService->storePublication($validated);
+        return redirect()->back()->with('success', "Publication link: {$publicationLink->doi} was successfully Added.");
     }
 }

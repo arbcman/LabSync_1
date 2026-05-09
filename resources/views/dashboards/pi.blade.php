@@ -22,6 +22,10 @@
             --font-mono: 'DM Mono', monospace;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background: var(--bg);
             color: var(--text);
@@ -77,6 +81,7 @@
             font-weight: 500;
         }
 
+        /* ── Header ── */
         header {
             border-bottom: 1px solid var(--border);
             padding-bottom: 2rem;
@@ -123,7 +128,6 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: 0.2s;
-            position: relative;
         }
 
         .tab-btn.active {
@@ -132,7 +136,6 @@
             background: rgba(77, 158, 255, 0.05);
         }
 
-        /* pending count badge on tab */
         .tab-count {
             display: inline-flex;
             align-items: center;
@@ -169,7 +172,7 @@
             }
         }
 
-        /* ── UI Components ── */
+        /* ── Section Card ── */
         section {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -179,7 +182,7 @@
 
         h2 {
             font-size: 1.25rem;
-            margin-bottom: 2rem;
+            margin: 0 0 2rem 0;
             text-transform: uppercase;
             display: flex;
             align-items: center;
@@ -191,8 +194,10 @@
             width: 4px;
             height: 1.2rem;
             background: var(--blue);
+            flex-shrink: 0;
         }
 
+        /* ── Form ── */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -216,7 +221,6 @@
             padding: 1rem;
             color: var(--text);
             font-family: var(--font-mono);
-            box-sizing: border-box;
         }
 
         .standard-input:focus {
@@ -242,7 +246,7 @@
             filter: brightness(1.1);
         }
 
-        /* ── Reservations List ── */
+        /* ── Reservation Items ── */
         .res-item {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -264,7 +268,7 @@
             font-size: 0.9rem;
             font-weight: 700;
             color: var(--text);
-            margin: 0;
+            margin: 0 0 4px 0;
         }
 
         .res-sub {
@@ -282,6 +286,10 @@
             display: flex;
             gap: 10px;
             flex-shrink: 0;
+        }
+
+        .res-actions form {
+            margin: 0;
         }
 
         .action-btn {
@@ -306,18 +314,46 @@
             color: var(--red);
         }
 
-        /* empty state */
-        .res-empty {
+        /* ── Publication Items ── */
+        .pub-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
             font-family: var(--font-mono);
-            font-size: .8rem;
-            color: var(--muted);
-            padding: 2rem;
-            text-align: center;
-            border: 1px dashed var(--border);
-            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
 
-        /* alerts */
+        .pub-data {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pub-doi {
+            font-size: .85rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pub-meta {
+            font-size: .68rem;
+            color: var(--muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .pub-meta span {
+            color: var(--text);
+        }
+
+        /* ── Alerts & Empty ── */
         .alert-success {
             background: rgba(77, 158, 255, .1);
             border: 1px solid var(--blue);
@@ -337,19 +373,39 @@
             font-family: var(--font-mono);
             font-size: .85rem;
         }
+
+        .res-empty {
+            font-family: var(--font-mono);
+            font-size: .8rem;
+            color: var(--muted);
+            padding: 2rem;
+            text-align: center;
+            border: 1px dashed var(--border);
+            border-radius: 4px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 2rem 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="shell">
-        @php
-            $budget = auth()->user()->PiProfile->budget_limit;
-        @endphp
-        {{-- Utility bar --}}
+
+        @php $budget = auth()->user()->PiProfile->budget_limit; @endphp
+
+        {{-- ── Utility Bar ── --}}
         <div class="utility-bar">
             <div class="stat-item">
                 <span class="stat-label">Pending_Reservations</span>
                 <span class="stat-value">{{ $pendingReservations->count() }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Publications_Linked</span>
+                <span class="stat-value">{{ $publicationLinks->count() }}</span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">Budget</span>
@@ -357,6 +413,7 @@
             </div>
         </div>
 
+        {{-- ── Header ── --}}
         <header>
             <div>
                 <p class="eyebrow">// Research Oversight</p>
@@ -367,7 +424,7 @@
             </div>
         </header>
 
-        {{-- Flash messages --}}
+        {{-- ── Flash Messages ── --}}
         @if (session('success'))
             <div class="alert-success">&gt; {{ session('success') }}</div>
         @elseif (session('fail'))
@@ -376,7 +433,7 @@
             <div class="alert-error">&gt; {{ session('error') }}</div>
         @endif
 
-        {{-- Tabs --}}
+        {{-- ── Tabs ── --}}
         <div class="tab-nav">
             <button class="tab-btn active" onclick="showTab('provision-sec', this)">01_Provisioning</button>
             <button class="tab-btn" onclick="showTab('pending-sec', this)">
@@ -385,6 +442,7 @@
                     <span class="tab-count">{{ $pendingReservations->count() }}</span>
                 @endif
             </button>
+            <button class="tab-btn" onclick="showTab('publications-sec', this)">03_Publications</button>
         </div>
 
         {{-- ══ TAB 1: Provision Researcher ══ --}}
@@ -439,8 +497,9 @@
                             <p class="res-label">
                                 {{ optional($reservation->equipment)->name ?? 'Unknown Equipment' }}
                             </p>
-                            <p class="res-label"> Total Cost:
-                                {{ app('App\Services\ReservationService')->calculateCost($reservation) }}</p>
+                            <p class="res-label">Total Cost:
+                                {{ app('App\Services\ReservationService')->calculateCost($reservation) }}
+                            </p>
                             <p class="res-sub">
                                 Researcher: <span>{{ optional($reservation->user)->name ?? '—' }}</span><br>
                                 From:
@@ -452,13 +511,10 @@
                         </div>
 
                         <div class="res-actions">
-                            {{-- Approve --}}
                             <form method="POST" action="{{ route('pi.reservation.approve', $reservation->id) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="action-btn approve">Approve</button>
                             </form>
-
-                            {{-- Reject --}}
                             <form method="POST" action="{{ route('pi.reservation.reject', $reservation->id) }}">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="action-btn reject">Reject</button>
@@ -473,7 +529,63 @@
             </section>
         </div>
 
-    </div>
+        {{-- ══ TAB 3: Publications ══ --}}
+        <div id="publications-sec" class="tab-content">
+            <section>
+                <h2>Link Publication</h2>
+
+                @php
+                    $PIid = auth()->id();
+                @endphp
+
+                <form method="POST" action="{{ route('pi.publication.store') }}">
+                    @csrf
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>DOI</label>
+                            <input type="text" name="doi" class="standard-input" placeholder="10.1000/xyz123"
+                                value="{{ old('doi') }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Equipment Used</label>
+                            <select name="equipment_id" class="standard-input" required>
+                                <option value="" disabled selected>— Select equipment —</option>
+                                @foreach ($usedEquipments as $eq)
+                                    <option value="{{ $eq->id }}"
+                                        {{ old('equipment_id') == $eq->id ? 'selected' : '' }}>
+                                        {{ $eq->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="pi_id" value="{{ $PIid }}">
+                    <button type="submit" class="btn-submit">Link Publication</button>
+                </form>
+
+                {{-- ── Existing Links ── --}}
+                @if ($publicationLinks->isNotEmpty())
+                    <hr class="section-divider">
+                    <h2>Linked Publications</h2>
+
+                    @foreach ($publicationLinks as $link)
+                        <div class="pub-item">
+                            <div class="pub-data">
+                                <p class="pub-doi">{{ $link->doi }}</p>
+                                <p class="pub-meta">
+                                    Equipment: <span>{{ optional($link->equipment)->name ?? '—' }}</span>
+                                    &nbsp;&middot;&nbsp;
+                                    Linked: <span>{{ $link->created_at->format('d M Y') }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+
+            </section>
+        </div>
+
+    </div>{{-- /shell --}}
 
     <script>
         function showTab(tabId, btn) {
@@ -483,10 +595,9 @@
             btn.classList.add('active');
         }
 
-        // Auto-open pending tab if redirected with ?tab=pending
-        if (new URLSearchParams(window.location.search).get('tab') === 'pending') {
-            document.querySelectorAll('.tab-btn')[1]?.click();
-        }
+        const tab = new URLSearchParams(window.location.search).get('tab');
+        if (tab === 'pending') document.querySelectorAll('.tab-btn')[1]?.click();
+        if (tab === 'publications') document.querySelectorAll('.tab-btn')[2]?.click();
     </script>
 </body>
 

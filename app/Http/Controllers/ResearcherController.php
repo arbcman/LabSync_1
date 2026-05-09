@@ -16,4 +16,5 @@ class ResearcherController extends Controller
         $activeSessions = EquipmentSession::where('user_id', $id)->whereNull('end_time')->get();
         return view('dashboards.researcher', compact('reservations', 'activeSessions'));
     }
+
 }

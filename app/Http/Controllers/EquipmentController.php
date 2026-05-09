@@ -12,7 +12,6 @@ class EquipmentController extends Controller
         $user = auth()->user();
         $userCertificates = $user?->researcherProfile?->certification ?? collect();
         $equipment = Equipment::with('category')->paginate(12);
-
         return view('welcome', compact('equipment', 'userCertificates'));
     }
 

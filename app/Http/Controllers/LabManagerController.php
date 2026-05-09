@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Equipment;
 use App\Models\User;
 use App\Services\LabMService;
 use Illuminate\Http\Request;
@@ -14,6 +15,12 @@ class LabManagerController extends Controller
     public function __construct(LabMService $labService)
     {
         $this->labService = $labService;
+    }
+
+    public function dashboard()
+    {
+        $equipments = Equipment::all();
+        return view('dashboards.labmanager', compact('equipments'));
     }
 
     public function store(Request $request)
@@ -46,5 +53,4 @@ class LabManagerController extends Controller
         $this->labService->deleteEquipment($request->equipment_id);
         return "Deleted Equipment with ID: " . $id;
     }
-
 }

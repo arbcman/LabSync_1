@@ -15,6 +15,10 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
 use App\Mail\NotifyPI;
+use App\Mail\NotifyUserForCertificateExpiration;
+use App\Models\Certification;
+use App\Models\LabmProfile;
+use App\Services\LabMService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -26,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [EquipmentController::class, 'index'])->name('equipment.index');
     //Dashboards
     Route::get('/admin/dashboard', fn() => view('dashboards.admin'))->middleware('role:Admin')->name('Admin.dashboard');
-    Route::get('/labmanager/dashboard', fn() => view('dashboards.labmanager'))->middleware('role:Lab_Manager')->name('Lab_Manager.dashboard');
+    Route::get('/labmanager/dashboard', [LabManagerController::class, 'dashboard'])->middleware('role:Lab_Manager')->name('Lab_Manager.dashboard');
     Route::get('/pi/dashboard', [PiController::class, 'dashboard'])->middleware('role:PI')->name('PI.dashboard');
     Route::get('/auditor/dashboard', [AuditorController::class, 'dashboard'])->name('Auditor.dashboard')->middleware('role:Auditor');
     Route::get('/researcher/dashboard', [ResearcherController::class, 'dashboard'])->name('Researcher.dashboard')->middleware('role:Researcher');
@@ -45,11 +49,13 @@ Route::middleware(['auth', 'role:PI'])->group(function () {
     Route::post('/piAddResearcher', [PiController::class, 'store'])->name('pi.researcher.store');
     Route::patch('/pi/reservations/{reservation}/approve', [PiController::class, 'approve'])->name('pi.reservation.approve');
     Route::patch('/pi/reservations/{reservation}/reject', [PiController::class, 'reject'])->name('pi.reservation.reject');
+    Route::post('/pi/publications', [PiController::class, 'storePublication'])->name('pi.publication.store');
 });
 
 route::middleware(['auth', 'role:Lab_Manager'])->group(function () {
     Route::post('/LabmStoreEquipment', [LabManagerController::class, 'store'])->name('LabM.equipment.store');
     Route::delete('/LabmDeleteEquipment', [LabManagerController::class, 'destroy'])->name('LabM.equipment.destroy');
+    Route::patch('/labmanager/equipment/{equipment}/maintenance', [LabMService::class, 'setMaintenance'])->name('LabM.equipment.setMaintenance');
     Route::get('/labmanager/heatmap', [HeatmapController::class, 'utilization'])->name('LabM.heatmap');
 });
 Route::middleware(['auth', 'role:Auditor'])->group(function () {
@@ -69,5 +75,16 @@ Route::middleware(['auth', 'role:Researcher'])->group(function () {
         Mail::to($recipient)->send(new NotifyPI($name));
 
         return "Email sent successfully!";
+    });
+    Route::get('/test-expiry-mail', function () {
+        $certifications = Certification::all();
+        $count = 0;
+        foreach ($certifications as $cert) {
+            if ($cert->almostExpired()) {
+                Mail::to($cert->user->email)->send(new NotifyUserForCertificateExpiration($cert));
+                $count++;
+            }
+        }
+        return "Check completed! Sent {$count} emails to the log file.";
     });
 });

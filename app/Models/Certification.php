@@ -14,12 +14,24 @@ class Certification extends Model
     ];
 
     protected $casts = [
-        'expiry_date' => 'date',
+        'expiry_date' => 'datetime',
     ];
 
     public function researcherProfile(): BelongsTo
     {
         return $this->belongsTo(ResearcherProfile::class);
     }
-  
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function almostExpired()
+    {
+        $today = now()->startOfDay();
+        $expiry = $this->expiry_date->startOfDay();
+
+        return $expiry->isFuture() && $today->diffInDays($expiry) <= 30;
+    }
 }

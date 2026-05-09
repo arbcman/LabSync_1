@@ -33,4 +33,9 @@ class ResearcherProfile extends Model
     {
         return $this->user->clearance_level >= $equipment->required_clearance;
     }
+
+    public function piProfiles(): BelongsTo
+    {
+        return $this->belongsTo(PiProfile::class, 'pis_id', 'user_id');
+    }
 }
