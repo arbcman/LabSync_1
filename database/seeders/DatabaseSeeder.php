@@ -377,8 +377,8 @@ class DatabaseSeeder extends Seeder
         // 11. TRANSACTIONS
         // ----------------------------------------------------------------
         $transactions = [
-            ['session_id' => $session1Id, 'amount' => 150.00, 'normalized_amount' => 142.50],
-            ['session_id' => $session2Id, 'amount' => 80.00,  'normalized_amount' => 76.00],
+            ['session_id' => $session1Id, 'user_id' => $carolId, 'amount' => 150.00, 'normalized_amount' => 142.50],
+            ['session_id' => $session2Id, 'user_id' => $carolId, 'amount' => 80.00,  'normalized_amount' => 76.00],
         ];
 
         foreach ($transactions as $tx) {
@@ -519,6 +519,16 @@ class DatabaseSeeder extends Seeder
 
         foreach ($equipmentConsumables as $ec) {
             DB::table('equipment_consumables')->insert($ec);
+        }
+        //===============
+        $transactionGrants = [
+            ['transaction_id' => 1, 'grant_id' => $grant1Id,   'percentage' => 50, 'amount' => 150],
+            ['transaction_id' => 1, 'grant_id' => $grant2Id,   'percentage' => 50, 'amount' => 150],
+
+        ];
+
+        foreach ($transactionGrants as $tg) {
+            DB::table('transaction_grants')->insert($tg);
         }
     }
 }

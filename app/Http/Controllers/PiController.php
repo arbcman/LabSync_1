@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
+use App\Models\Grant;
 use App\Models\PiProfile;
 use App\Models\Reservation;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Services\PiService;
 use App\Services\ReservationService;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
 class PiController extends Controller
@@ -50,7 +53,22 @@ class PiController extends Controller
             ->orderBy('created_at', 'asc')  // oldest first — fairest queue order
             ->get();
 
-        return view('dashboards.pi', compact('pendingReservations', 'usedEquipments', 'publicationLinks'));
+        $researcherIds = $pi->researchers()->pluck('user_id');
+
+        $unallocatedTransactions = Transaction::whereDoesntHave('transactionGrants')
+            ->whereHas('equipmentSession', fn($q) => $q->whereIn('user_id', $researcherIds))
+            ->with(['equipmentSession.equipment', 'equipmentSession.user'])
+            ->get();
+
+        $piGrants = Grant::where('pi_id', $pi->user_id)->get();
+
+        return view('dashboards.pi', compact(
+            'pendingReservations',
+            'usedEquipments',
+            'publicationLinks',
+            'unallocatedTransactions',
+            'piGrants'
+        ));
     }
 
     public function approve(Reservation $reservation)
@@ -91,5 +109,24 @@ class PiController extends Controller
         $validated = $request->validate($rules);
         $publicationLink = $this->piService->storePublication($validated);
         return redirect()->back()->with('success', "Publication link: {$publicationLink->doi} was successfully Added.");
+    }
+
+
+
+    public function allocateTransaction(Request $request, Transaction $transaction)
+    {
+        $request->validate([
+            'allocations'               => 'required|array|min:1',
+            'allocations.*.grant_id'    => 'required|exists:grants,id',
+            'allocations.*.percentage'  => 'required|numeric|min:1|max:100',
+        ]);
+
+        try {
+            app(TransactionService::class)->allocate($transaction, $request->input('allocations'));
+            return redirect()->route('PI.dashboard', ['tab' => 'grants'])
+                ->with('success', "Transaction TXN-{$transaction->id} allocated successfully.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

@@ -33,9 +33,11 @@ return new class extends Migration
 
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('session_id')->constrained('equipment_sessions')->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->decimal('normalized_amount', 10, 2)->nullable();
+            $table->boolean('is_split')->default(false);
             $table->timestamps();
         });
         Schema::create('pi_profiles', function (Blueprint $table) {
@@ -111,6 +113,15 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('action');
             $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::create('transaction_grants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('grant_id')->constrained()->cascadeOnDelete();
+            $table->decimal('percentage', 5, 2);
+            $table->decimal('amount', 10, 2);
+            $table->timestamps();
         });
     }
     public function down(): void

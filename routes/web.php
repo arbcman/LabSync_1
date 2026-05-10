@@ -18,11 +18,9 @@ use App\Livewire\Settings\TwoFactor;
 use App\Mail\NotifyPI;
 use App\Mail\NotifyUserForCertificateExpiration;
 use App\Models\Certification;
-use App\Models\LabmProfile;
 use App\Services\LabMService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
 
 
 // welcome page
@@ -55,6 +53,7 @@ Route::middleware(['auth', 'role:PI'])->group(function () {
     Route::patch('/pi/reservations/{reservation}/approve', [PiController::class, 'approve'])->name('pi.reservation.approve');
     Route::patch('/pi/reservations/{reservation}/reject', [PiController::class, 'reject'])->name('pi.reservation.reject');
     Route::post('/pi/publications', [PiController::class, 'storePublication'])->name('pi.publication.store');
+    Route::post('/pi/transactions/{transaction}/allocate', [PiController::class, 'allocateTransaction'])->name('pi.transaction.allocate');
 });
 
 //==========================================
@@ -73,9 +72,9 @@ Route::middleware(['auth', 'role:Auditor'])->group(function () {
 
 //==========================================
 
-Route::middleware(['auth', 'role:Researcher'])->group(function () { 
+Route::middleware(['auth', 'role:Researcher'])->group(function () {
     Route::get('/equipment/{id}/book',  [ReservationController::class, 'reservationPanel'])->middleware('safety.acknowledged')->name('equipment.book');
-    
+
     Route::post('/equipment/{id}/book', [ReservationController::class, 'store'])->name('equipment.book.store');
     Route::post('/equipment/{equipment}/session/start', [EquipmentSessionController::class, 'storeSessionForStartNow'])->name('equipment.session.start');
 

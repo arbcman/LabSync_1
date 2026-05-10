@@ -389,6 +389,37 @@
             border-top: 1px solid var(--border);
             margin: 2rem 0;
         }
+
+        .grant-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: .75rem;
+        }
+
+        .grant-row .form-group {
+            margin: 0;
+        }
+
+        .btn-remove-grant {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--red);
+            width: 2.2rem;
+            height: 2.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: .15s;
+            flex-shrink: 0;
+            margin-bottom: 1px;
+            /* optical alignment with inputs */
+        }
+
+        .btn-remove-grant:hover {
+            background: rgba(255, 77, 77, .08);
+            border-color: var(--red);
+        }
     </style>
 </head>
 
@@ -443,6 +474,7 @@
                 @endif
             </button>
             <button class="tab-btn" onclick="showTab('publications-sec', this)">03_Publications</button>
+            <button class="tab-btn" onclick="showTab('grants-sec', this)">04_Grant_Allocation</button>
         </div>
 
         {{-- ══ TAB 1: Provision Researcher ══ --}}
@@ -585,6 +617,108 @@
             </section>
         </div>
 
+        {{-- ══ TAB 4: Grant Allocation ══
+     Controller must pass:
+       $unallocatedTransactions — Transaction::whereDoesntHave('transactionGrants')
+                                    ->where('user_id', ... pi's researchers ...)
+                                    ->with('session.equipment', 'session.user')
+                                    ->get();
+       $piGrants               — Grant::where('pi_id', auth()->user()->piProfile->user_id)->get();
+--}}
+        <div id="grants-sec" class="tab-content">
+            <section>
+                <h2>Grant Allocation</h2>
+
+                @forelse ($unallocatedTransactions as $transaction)
+                    <div class="res-item" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+
+                        {{-- ── Transaction Header ── --}}
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="res-data">
+                                <p class="res-label">
+                                    {{ optional($transaction->equipmentSession->equipment)->name ?? '—' }}
+                                </p>
+                                <p class="res-sub">
+                                    Researcher:
+                                    <span>{{ optional($transaction->equipmentSession->user)->name ?? '—' }}</span><br>
+                                    Session ended:
+                                    <span>{{ $transaction->created_at->format('d M Y, H:i') }}</span><br>
+                                    Total Cost: <span>${{ number_format($transaction->total_cost, 2) }}</span>
+                                </p>
+                            </div>
+                            <span
+                                style="font-family:var(--font-mono); font-size:.65rem; color:var(--muted); white-space:nowrap;">
+                                TXN-{{ str_pad($transaction->id, 5, '0', STR_PAD_LEFT) }}
+                            </span>
+                        </div>
+
+                        {{-- ── Split Allocation Form ── --}}
+                        <form method="POST" action="{{ route('pi.transaction.allocate', $transaction->id) }}"
+                            class="allocation-form" data-cost="{{ $transaction->total_cost }}">
+                            @csrf
+
+                            {{-- Dynamic grant rows — JS adds/removes these --}}
+                            <div class="grant-rows" id="grant-rows-{{ $transaction->id }}">
+
+                                {{-- Row 1 (always shown) --}}
+                                <div class="grant-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label>Grant</label>
+                                        <select name="allocations[0][grant_id]" class="standard-input" required>
+                                            <option value="" disabled selected>— Select grant —</option>
+                                            @foreach ($piGrants as $grant)
+                                                <option value="{{ $grant->id }}">
+                                                    {{ $grant->name }} (Balance:
+                                                    ${{ number_format($grant->balance, 2) }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label>Percentage (%)</label>
+                                        <input type="number" name="allocations[0][percentage]"
+                                            class="standard-input pct-input" min="1" max="100"
+                                            placeholder="100" required>
+                                    </div>
+                                    <div style="padding-top:1.6rem; flex-shrink:0;">
+                                        {{-- placeholder to keep layout aligned on first row --}}
+                                        <span style="display:inline-block; width:2.2rem;"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {{-- ── Summary row ── --}}
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem;">
+                                <button type="button" class="action-btn"
+                                    onclick="addGrantRow(this, {{ $transaction->id }}, {{ $transaction->total_cost }})">
+                                    + Add Grant
+                                </button>
+
+                                <div style="font-family:var(--font-mono); font-size:.72rem; text-align:right;">
+                                    <span style="color:var(--muted);">Total allocated: </span>
+                                    <span class="pct-total" id="pct-total-{{ $transaction->id }}"
+                                        style="color:var(--accent);">0%</span>
+                                    &nbsp;/&nbsp;
+                                    <span style="color:var(--muted);">Remaining: </span>
+                                    <span class="pct-remaining" id="pct-remaining-{{ $transaction->id }}"
+                                        style="color:var(--text);">100%</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" style="margin-top:1.2rem;">
+                                Confirm Allocation
+                            </button>
+                        </form>
+
+                    </div>
+                @empty
+                    <div class="res-empty">// NO_PENDING_ALLOCATIONS — all transactions are allocated</div>
+                @endforelse
+
+            </section>
+        </div>
     </div>{{-- /shell --}}
 
     <script>
@@ -598,6 +732,81 @@
         const tab = new URLSearchParams(window.location.search).get('tab');
         if (tab === 'pending') document.querySelectorAll('.tab-btn')[1]?.click();
         if (tab === 'publications') document.querySelectorAll('.tab-btn')[2]?.click();
+        if (tab === 'grants') document.querySelectorAll('.tab-btn')[3]?.click();
+        // ── Grant row counter per transaction ──
+        const rowCounters = {};
+
+        function addGrantRow(btn, txnId, totalCost) {
+            if (!rowCounters[txnId]) rowCounters[txnId] = 1;
+            const idx = ++rowCounters[txnId];
+
+            const container = document.getElementById(`grant-rows-${txnId}`);
+
+            const row = document.createElement('div');
+            row.className = 'grant-row';
+            row.innerHTML = `
+            <div class="form-group" style="flex:2;">
+                <label>Grant</label>
+                <select name="allocations[${idx}][grant_id]" class="standard-input" required>
+                    <option value="" disabled selected>— Select grant —</option>
+                    @foreach ($piGrants as $grant)
+                        <option value="{{ $grant->id }}">
+                            {{ $grant->name }} (Balance: ${{ number_format($grant->balance, 2) }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Percentage (%)</label>
+                <input type="number" name="allocations[${idx}][percentage]"
+                       class="standard-input pct-input"
+                       min="1" max="100" placeholder="0" required>
+            </div>
+            <button type="button" class="btn-remove-grant"
+                    onclick="removeGrantRow(this, ${txnId})">×</button>
+        `;
+
+            container.appendChild(row);
+            bindPctInputs(txnId);
+        }
+
+        function removeGrantRow(btn, txnId) {
+            btn.closest('.grant-row').remove();
+            updatePctSummary(txnId);
+        }
+
+        // ── Live percentage summary ──
+        function updatePctSummary(txnId) {
+            const container = document.getElementById(`grant-rows-${txnId}`);
+            const inputs = container.querySelectorAll('.pct-input');
+            const total = Array.from(inputs).reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
+            const remaining = 100 - total;
+
+            const totalEl = document.getElementById(`pct-total-${txnId}`);
+            const remainingEl = document.getElementById(`pct-remaining-${txnId}`);
+
+            totalEl.textContent = total.toFixed(0) + '%';
+            remainingEl.textContent = remaining.toFixed(0) + '%';
+
+            // Color feedback
+            totalEl.style.color = total === 100 ? 'var(--accent)' : total > 100 ? 'var(--red)' : 'var(--muted)';
+            remainingEl.style.color = remaining === 0 ? 'var(--accent)' : remaining < 0 ? 'var(--red)' : 'var(--text)';
+        }
+
+        function bindPctInputs(txnId) {
+            const container = document.getElementById(`grant-rows-${txnId}`);
+            container.querySelectorAll('.pct-input').forEach(input => {
+                input.removeEventListener('input', input._handler);
+                input._handler = () => updatePctSummary(txnId);
+                input.addEventListener('input', input._handler);
+            });
+        }
+
+        // Init all on page load
+        document.querySelectorAll('[id^="grant-rows-"]').forEach(container => {
+            const txnId = container.id.replace('grant-rows-', '');
+            bindPctInputs(txnId);
+        });
     </script>
 </body>
 
